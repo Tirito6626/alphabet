@@ -1,4 +1,4 @@
-import * from "../misc/colors.ab"
+import * from "../ansi.ab"
 /// Prints a warning message with predefined format
 pub fun warn(message: Text, with_timestamp: Bool = false): Null {
     if with_timestamp:

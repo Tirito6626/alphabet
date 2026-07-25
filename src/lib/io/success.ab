@@ -1,4 +1,4 @@
-import * from "../misc/colors.ab"
+import * from "../ansi.ab"
 
 /// Prints a success message with predefined format
 pub fun success(message: Text, with_timestamp: Bool = false): Null {

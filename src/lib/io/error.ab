@@ -1,4 +1,4 @@
-import * from "../misc/colors.ab"
+import * from "../ansi.ab"
 
 /// Prints an error message with predefined format
 pub fun error(message: Text, with_timestamp: Bool = false): Null {

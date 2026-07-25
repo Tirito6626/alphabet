@@ -7,7 +7,7 @@ pub import {
     update_success_format
 } from "lib/misc/update_format.ab"
 
-pub import * from "lib/misc/colors.ab"
+pub import * from "lib/ansi.ab"
 
 pub import { error, error_exit, error_fail } from "lib/io/error.ab"
 pub import { warn } from "lib/io/warn.ab"

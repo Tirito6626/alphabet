@@ -1,4 +1,4 @@
-import * from "../misc/colors.ab"
+import * from "../ansi.ab"
 
 /// Prints a log message with predefined format
 pub fun log(message: Text, with_timestamp: Bool = false): Null {

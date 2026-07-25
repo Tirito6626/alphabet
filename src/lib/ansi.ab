@@ -48,6 +48,49 @@ pub fun rgb_bg(r: Int, g: Int, b: Int): Text {
     return "{ESC}[48;2;{r};{g};{b}m"
 }
 
+pub fun cursor_home(): Null {
+    trust $ printf "{ESC}[H" $
+}
+
+pub fun cursor_move(rows: Int, cols: Int): Null {
+    trust $ printf "{ESC}[{rows};{cols}H" $
+}
+
+pub fun cursor_up(rows: Int): Null {
+    trust $ printf "{ESC}[{rows}A" $
+}
+
+pub fun cursor_down(rows: Int): Null {
+    trust $ printf "{ESC}[{rows}B" $
+}
+
+pub fun cursor_right(cols: Int): Null {
+    trust $ printf "{ESC}[{cols}C" $
+}
+
+pub fun cursor_left(cols: Int): Null {
+    trust $ printf "{ESC}[{cols}D" $
+}
+
+pub fun cursor_save(): Null {
+    trust $ printf "{ESC}7" $
+}
+
+pub fun cursor_restore(): Null {
+    trust $ printf "{ESC}8" $
+}
+
+pub fun cursor_position(): [Int] {
+    let row = Int;
+    let col = Int;
+    trust $ 
+        printf "{ESC}[6n"
+        IFS=';' read -d R {nameof(row)} {nameof(col)}
+        {nameof(col)}="\$\{{nameof(col)}:4}"
+    $
+    return [row, col]
+}
+
 pub fun print_prefix(style: Text, string: Text, color: Text, color_bg: Text): Text {
     if {
         style == "minimal": return "{BOLD}{color}{string}{NC}"

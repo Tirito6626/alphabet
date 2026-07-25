@@ -1,6 +1,6 @@
 import { error } from "error.ab"
 import { update_error_format } from "../misc/update_format.ab"
-import * from "../misc/colors.ab"
+import * from "../ansi.ab"
 import { join } from "std/text";
 import { array_contains, array_shift } from "std/array"
 

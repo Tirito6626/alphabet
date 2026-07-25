@@ -1,23 +1,37 @@
 import { int_check, num_check, bool_check } from "../typecheck/value.ab"
-import { ESC } from "../misc/colors.ab"
-import { array_contains } from "std/array"
-import { lowercase } from "std/text"
+import { ESC } from "../ansi.ab"
+import { lowercase, starts_with } from "std/text"
 import { enable_func_debug } from "/root/projects/debugger/src/main.ab"
-fun prompt1(prompt: Text, hidden: Bool): Text {
-    const output = ""
-    if not hidden {
+fun readline(prompt: Text = "", hidden: Bool = false, max: Int = 0): Text {
+    //trust $ set -x $
+    enable_func_debug()
+    let args = "";
+    if prompt {
         if {
-            shellname() == "bash": trust $ read -p "{prompt}" {nameof(output)} || read -p "{prompt}" {nameof(output)} < /dev/tty $
-            shellname() == "zsh": trust $ read "?{prompt}" || read "?{prompt}" < /dev/tty $
-            shellname() == "ksh": trust $ read {nameof(output)}?"{prompt}" $
-        }
-    } else {
-        if {
-            shellname() == "bash": trust $ read -s -p "{prompt}" {nameof(output)} || read -s -p "{prompt}" {nameof(output)} < /dev/tty $
-            shellname() == "zsh": trust $ read -s "?{prompt}" {nameof(output)} || read -s "?{prompt}" {nameof(output)} < /dev/tty $
-            shellname() == "ksh": trust $ stty -echo 2>/dev/null; read {nameof(output)}?"{prompt}"; stty echo 2>/dev/null $
+            shellname() == "bash": args += " -p \"{prompt}\""
+            shellname() == "zsh": args += "?\"{prompt}\" "
         }
     }
+    if max > 0 {
+        if {
+            shellname() == "bash" or shellname() == "ksh": args += " -N {max}"
+            shellname() == "zsh": args += " -k {max}" 
+        }
+    }
+    if hidden and shellname() != "ksh":
+        args += " -s"
+    
+    const output = ""
+    if shellname() == "ksh" {
+        if hidden {
+            trust $ stty -echo 2>/dev/null; read {nameof(output)}?"{prompt}"; stty echo 2>/dev/null $
+        } else {
+            trust $ read {nameof(output)}?"{prompt}" $
+        }
+    } else {
+        trust $ read {args} {nameof(output)} || read {args} {nameof(output)} < /dev/tty $
+    }
+   // trust $ set +x $
     return output
 }
 
@@ -29,25 +43,25 @@ fun prompt1(prompt: Text, hidden: Bool): Text {
 /// 2: Integer input
 /// 3: Number input
 /// 4: Boolean input
-pub fun readline(type: Int, required: Bool = true, hidden: Bool = false, prompt: Text = ""): Text {
+pub fun prompt(type: Int, required: Bool = true, hidden: Bool = false, prompt: Text = ""): Text {
     let result = ""
-    enable_func_debug()
-    result = prompt1(prompt, hidden)
+   // enable_func_debug()
+    result = readline(prompt, hidden)
     trust $ false $
     while required and result == "":
-        result = prompt1(prompt, hidden);
+        result = readline(prompt, hidden);
     if {
         type == 2 {
             while not int_check(result):
-                result = prompt1(prompt, hidden);
+                result = readline(prompt, hidden);
         }
         type == 3 {
             while not num_check(result):
-                result = prompt1(prompt, hidden);
+                result = readline(prompt, hidden);
         }
         type == 4 {
             while not bool_check(result):
-                result = prompt1(prompt, hidden);
+                result = readline(prompt, hidden);
         }
     }
     return result
@@ -56,18 +70,26 @@ pub fun readline(type: Int, required: Bool = true, hidden: Bool = false, prompt:
 
 /// Read from standard input for a confirmation
 /// 
-/// Any input is turned into lowercase and is compared with "y" or "yes"
+/// Any input is turned into lowercase and is compared with "y"
 ///
 /// If no input is supplied, `default` value is returned
 pub fun read_confirm(prompt: Text = "", default: Bool = false): Bool {
-    const value = lowercase(prompt1(prompt, false))
+    const value = lowercase(readline(prompt, false, 1))
     if len(value) == 0:
         return default
-    return array_contains(["y", "yes"], value)
+    return value == "y"
+}
+
+pub fun read_pretty(type: Int, required: Bool = false, prompt: Text = ""): Text {
+    let input = "";
+    loop {
+        input = readline(prompt, false, 1);
+        echo(input)
+    }
 }
 
 main { 
-    echo(readline(1, true, false, "test: "))
+    echo(prompt(1, true, false, "test: "))
     echo("ok")
     echo(read_confirm())
 }
