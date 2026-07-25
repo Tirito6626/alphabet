@@ -1,4 +1,4 @@
-import * from "colors.ab"
+import * from "../ansi.ab"
 
 /// Updates output format for `error`
 ///
