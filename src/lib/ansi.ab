@@ -114,8 +114,8 @@ pub let LOG_FORMAT = "";
 pub let SUCCESS_FORMAT = "";
 #[allow_public_mutable]
 pub let WARN_FORMAT = "";
-pub const LINES = "";
-pub const COLUMNS = "";
+pub const LINES = 0;
+pub const COLUMNS = 0;
 
 
 // Initialise $LINES and $COLUMNS for non-interactive bash, other shells load them by default
