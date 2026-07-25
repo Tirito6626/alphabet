@@ -147,7 +147,7 @@ pub fun erase_screen(type: Int = 2): Null {
 /// - 0: from cursor to end of line
 /// - 1: from cursor to beginning of the line
 /// - 2: entire line (default)
-pub fun erase_screen(type: Int = 2): Null {
+pub fun erase_line(type: Int = 2): Null {
     trust $ printf "{ESC}[{type}K" $
 }
 
