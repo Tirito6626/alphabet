@@ -81,8 +81,8 @@ pub fun cursor_restore(): Null {
 }
 
 pub fun cursor_position(): [Int] {
-    let row = Int;
-    let col = Int;
+    let row = 0;
+    let col = 0;
     trust $ 
         printf "{ESC}[6n"
         IFS=';' read -d R {nameof(row)} {nameof(col)}
