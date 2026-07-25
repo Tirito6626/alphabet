@@ -2,36 +2,29 @@ import { int_check, num_check, bool_check } from "../typecheck/value.ab"
 import { ESC } from "../ansi.ab"
 import { lowercase, starts_with } from "std/text"
 import { enable_func_debug } from "/root/projects/debugger/src/main.ab"
+
 fun readline(prompt: Text = "", hidden: Bool = false, max: Int = 0): Text {
-    //trust $ set -x $
     enable_func_debug()
     let args = "";
-    if prompt {
+    if max > 0:
         if {
-            shellname() == "bash": args += " -p \"{prompt}\""
-            shellname() == "zsh": args += "?\"{prompt}\" "
+            shellname() == "bash" or shellname() == "ksh": args = "-N {max}"
+            else: args = "-k {max}"
         }
-    }
-    if max > 0 {
-        if {
-            shellname() == "bash" or shellname() == "ksh": args += " -N {max}"
-            shellname() == "zsh": args += " -k {max}" 
-        }
-    }
-    if hidden and shellname() != "ksh":
-        args += " -s"
-    
     const output = ""
-    if shellname() == "ksh" {
-        if hidden {
-            trust $ stty -echo 2>/dev/null; read {nameof(output)}?"{prompt}"; stty echo 2>/dev/null $
-        } else {
-            trust $ read {nameof(output)}?"{prompt}" $
+    if not hidden {
+        if {
+            shellname() == "bash": trust $ read -p "{prompt}" {args} {nameof(output)} || read -p "{prompt}" {args} {nameof(output)} < /dev/tty $
+            shellname() == "zsh": trust $ read {args} "?{prompt}" || read {args} "?{prompt}" < /dev/tty $
+            shellname() == "ksh": trust $ read {args} {nameof(output)}?"{prompt}" $
         }
     } else {
-        trust $ read {args} {nameof(output)} || read {args} {nameof(output)} < /dev/tty $
+        if {
+            shellname() == "bash": trust $ read -s -p "{prompt}" {args} {nameof(output)} || read -s -p "{prompt}" {args} {nameof(output)} < /dev/tty $
+            shellname() == "zsh": trust $ read -s "?{prompt}" {nameof(output)} || read -s "?{prompt}" {args} {nameof(output)} < /dev/tty $
+            shellname() == "ksh": trust $ stty -echo 2>/dev/null; read {args} {nameof(output)}?"{prompt}"; stty echo 2>/dev/null $
+        }
     }
-   // trust $ set +x $
     return output
 }
 
@@ -74,6 +67,7 @@ pub fun prompt(type: Int, required: Bool = true, hidden: Bool = false, prompt: T
 ///
 /// If no input is supplied, `default` value is returned
 pub fun read_confirm(prompt: Text = "", default: Bool = false): Bool {
+    enable_func_debug()
     const value = lowercase(readline(prompt, false, 1))
     if len(value) == 0:
         return default
