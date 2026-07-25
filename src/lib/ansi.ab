@@ -130,7 +130,7 @@ pub fun cursor_restore(): Null {
 }
 
 /// Restores the cursor to the last saved position (SCO)
-pub fun cursor_restore(): Null {
+pub fun cursor_restore_sco(): Null {
     trust $ printf "{ESC}[u" $
 }
 
