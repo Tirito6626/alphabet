@@ -83,10 +83,12 @@ pub fun cursor_restore(): Null {
 pub fun cursor_position(): [Int] {
     let row = 0;
     let col = 0;
-    trust $ 
+    trust $
+        stty -echo
         printf "{ESC}[6n"
+        read -s -d\[ _
         IFS=';' read -d R {nameof(row)} {nameof(col)}
-        {nameof(col)}="\$\{{nameof(col)}:4}"
+        stty echo
     $
     return [row, col]
 }
