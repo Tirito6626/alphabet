@@ -1,3 +1,5 @@
+
+// credits to https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 pub const ESC = trust $ echo -e "\x1B" $ 
 pub const WHITE = "{ESC}[38;5;255m"
 pub const BLACK = "{ESC}[38;5;0m"
@@ -48,50 +50,108 @@ pub fun rgb_bg(r: Int, g: Int, b: Int): Text {
     return "{ESC}[48;2;{r};{g};{b}m"
 }
 
+/// Moves cursor to home position (0, 0)
 pub fun cursor_home(): Null {
     trust $ printf "{ESC}[H" $
 }
 
-pub fun cursor_move(rows: Int, cols: Int): Null {
-    trust $ printf "{ESC}[{rows};{cols}H" $
+/// Moves cursor to line `line`, column `col`
+pub fun cursor_move(line: Int, col: Int): Null {
+    trust $ printf "{ESC}[{line};{col}H" $
 }
 
+/// Moves cursor up `rows` lines
 pub fun cursor_up(rows: Int): Null {
     trust $ printf "{ESC}[{rows}A" $
 }
 
+/// Moves cursor down `rows` lines
 pub fun cursor_down(rows: Int): Null {
     trust $ printf "{ESC}[{rows}B" $
 }
 
+/// Moves cursor right `cols` columns
 pub fun cursor_right(cols: Int): Null {
     trust $ printf "{ESC}[{cols}C" $
 }
 
+/// Moves cursor left `cols` columns
 pub fun cursor_left(cols: Int): Null {
     trust $ printf "{ESC}[{cols}D" $
 }
 
-pub fun cursor_save(): Null {
-    trust $ printf "{ESC}7" $
+/// Moves cursor to beginning of next line, `rows` lines down
+pub fun cursor_down_beginning(rows: Int): Null {
+    trust $ printf "{ESC}[{rows}E" $
 }
 
-pub fun cursor_restore(): Null {
-    trust $ printf "{ESC}8" $
+/// Moves cursor to beginning of next line, `rows` lines up
+pub fun cursor_up_beginning(rows: Int): Null {
+    trust $ printf "{ESC}[{rows}F" $
 }
 
+/// Moves cursor to column `col`
+pub fun cursor_move_col(col: Int): Null {
+    trust $ printf "{ESC}[{col}G" $
+}
+
+/// Moves cursor one line up, scrolling if needed
+pub fun cursor_scroll_up(): Null {
+    trust $ printf "{ESC}M" $
+}
+
+/// Request cursor position (returns `[<line>, <col>]`)
 pub fun cursor_position(): [Int] {
     let row = 0;
     let col = 0;
     trust $
-        stty -echo
+       # stty -echo
         printf "{ESC}[6n"
         read -s -d\[ _
         IFS=';' read -d R {nameof(row)} {nameof(col)}
-        stty echo
+       # stty echo
     $
     return [row, col]
 }
+
+/// Save cursor position (DEC)
+pub fun cursor_save(): Null {
+    trust $ printf "{ESC}7" $
+}
+
+/// Save cursor position (SCO)
+pub fun cursor_save_sco(): Null {
+    trust $ printf "{ESC}[s" $
+}
+
+/// Restores the cursor to the last saved position (DEC)
+pub fun cursor_restore(): Null {
+    trust $ printf "{ESC}8" $
+}
+
+/// Restores the cursor to the last saved position (SCO)
+pub fun cursor_restore(): Null {
+    trust $ printf "{ESC}[u" $
+}
+
+/// Erase:
+/// - 0: from cursor until end of screen
+/// - 1: from cursor to beginning of screen
+/// - 2: entire screen (default)
+/// - 3: saved lines
+pub fun erase_screen(type: Int = 2): Null {
+    trust $ printf "{ESC}[{type}J" $
+}
+
+/// Erase:
+/// - 0: from cursor to end of line
+/// - 1: from cursor to beginning of the line
+/// - 2: entire line (default)
+pub fun erase_screen(type: Int = 2): Null {
+    trust $ printf "{ESC}[{type}K" $
+}
+
+
 
 pub fun print_prefix(style: Text, string: Text, color: Text, color_bg: Text): Text {
     if {
